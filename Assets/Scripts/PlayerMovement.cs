@@ -6,12 +6,22 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movment attributes")]
 
-    [Range(0.1f,  0.5f)] [SerializeField] private float horizontalAcceleration = 0.25f;
+    //[Range(0.2f, 0.5f)]
+    public float horizontalAcceleration = 0.4f;
 
     private Rigidbody2D rigidbody2D;
-    private SpriteRenderer spriteRenderer;
-
+    private bool isMoving;
     private float old_pos;
+
+
+    private SpriteRenderer spriteRenderer;
+    private Animator animator;
+
+    public bool IsMoving {
+        get { return isMoving; }
+    }
+
+    
 
     // Start is called before the first frame update
     void Start()
@@ -24,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
         Debug.Log("Initial position");
 
         spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -36,6 +47,14 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         MoveHorizontaly();
+
+        if (isMoving)
+        {
+            animator.SetBool("IsRunning", true);
+        }
+        else {
+            animator.SetBool("IsRunning", false);
+        }
     }
 
     private void MoveHorizontaly()
@@ -44,15 +63,18 @@ public class PlayerMovement : MonoBehaviour
 
         FlipSprite(moveHorizontalForce);
 
-        Debug.Log(rigidbody2D.velocity.x);
-
-
-
-
         rigidbody2D.AddForce(new Vector2(moveHorizontalForce, 0), ForceMode2D.Impulse);
 
+        // update running animation
+        if (rigidbody2D.velocity.magnitude < 0.01)
+        {
+            isMoving = false;
+        }
+        else {
+            isMoving = true;
+        }
 
-
+        
     }
 
     private void FlipSprite(float moveHorizotal)
